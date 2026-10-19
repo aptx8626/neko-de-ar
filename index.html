@@ -1,48 +1,143 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<style>
-  body { margin: 0; }
-  #text {
-    position: fixed; left: 0; right: 0; bottom: 12%;
-    text-align: center; font-size: 28px; color: #fff;
-    text-shadow: 0 0 6px #000, 0 0 6px #000;
-    font-family: "Hiragino Mincho ProN", serif;
-    z-index: 10; pointer-events: none;
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>吾輩は猫でAR</title>
+
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      background: #061525;
+      color: #8ce8ff;
+      font-family: sans-serif;
+    }
+
+    a-scene {
+      position: fixed;
+      inset: 0;
+    }
+
+    #guide, #hud {
+      position: fixed;
+      z-index: 10;
+      left: 8%;
+      right: 8%;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    #guide {
+      bottom: 9%;
+      font-size: 14px;
+      color: white;
+      text-shadow: 0 0 8px #00bfff;
+    }
+
+    #hud {
+      top: 18%;
+      display: none;
+      padding: 22px 12px;
+      background: rgba(3, 20, 39, 0.82);
+      border: 1px solid #38cfff;
+      border-radius: 12px;
+      box-shadow: 0 0 22px #008cff55;
+    }
+
+    #label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      margin-bottom: 18px;
+    }
+
+    #message {
+      font-size: clamp(20px, 5vw, 30px);
+      line-height: 1.8;
+    }
+
+    #cursor {
+      animation: blink 0.7s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
 </head>
+
 <body>
-<div id="text"></div>
+  <div id="hud" aria-live="polite">
+    <div id="label">IMAGE TARGET // IDENTIFIED</div>
+    <div id="message"></div><span id="cursor">▌</span>
+  </div>
 
-<a-scene mindar-image="imageTargetSrc: ./cat.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
-  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
-  <a-entity id="target" mindar-image-target="targetIndex: 0"></a-entity>
-</a-scene>
+  <div id="guide">猫さんのイラストにカメラを向けてね</div>
 
-<script>
-  const message = "吾輩は猫でAR。名前はまだ無い。";
-  const el = document.getElementById("text");
-  let timer = null;
+  <a-scene
+    mindar-image="imageTargetSrc: ./targets.mind; autoStart: true;"
+    color-space="sRGB"
+    renderer="colorManagement: true"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
 
-  document.getElementById("target").addEventListener("targetFound", () => {
-    let i = 0;
-    el.textContent = "";
-    clearInterval(timer);
-    timer = setInterval(() => {
-      el.textContent = message.slice(0, ++i);
-      if (i >= message.length) clearInterval(timer);
-    }, 120);
-  });
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false">
+    </a-camera>
 
-  document.getElementById("target").addEventListener("targetLost", () => {
-    clearInterval(timer);
-    el.textContent = "";
-  });
-</script>
+    <a-entity mindar-image-target="targetIndex: 0"></a-entity>
+  </a-scene>
+
+  <script>
+    const target = document.querySelector(
+      '[mindar-image-target]'
+    );
+
+    const hud = document.getElementById('hud');
+    const guide = document.getElementById('guide');
+    const message = document.getElementById('message');
+    const cursor = document.getElementById('cursor');
+
+    const words = Array.from(
+      '吾輩は猫でAR。名前はまだない。'
+    );
+
+    let timer = null;
+
+    target.addEventListener('targetFound', () => {
+      clearTimeout(timer);
+      message.textContent = '';
+      hud.style.display = 'block';
+      guide.style.display = 'none';
+      cursor.style.display = 'inline';
+
+      let i = 0;
+
+      function typeNext() {
+        if (i >= words.length) {
+          cursor.style.display = 'none';
+          return;
+        }
+
+        message.textContent += words[i];
+        i++;
+
+        // 1文字ずつ表示
+        timer = setTimeout(typeNext, 160);
+      }
+
+      typeNext();
+    });
+
+    target.addEventListener('targetLost', () => {
+      clearTimeout(timer);
+      hud.style.display = 'none';
+      guide.style.display = 'block';
+      message.textContent = '';
+    });
+  </script>
 </body>
 </html>
