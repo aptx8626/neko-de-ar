@@ -71,7 +71,7 @@
   target.addEventListener("targetFound", () => {
     guide.style.display = "none";
     status.textContent = "🐾 猫さん召喚中…";
-    summon.emit("summon");
+    setTimeout(() => summon.emit("summon"), 1500); 
     clearTimeout(finishTimer);
     finishTimer = setTimeout(() => {
       status.textContent = "召喚成功！ にゃん！";
