@@ -27,10 +27,20 @@
     display: none; position: fixed; z-index: 20; top: 40%; left: 8%; right: 8%;
     padding: 18px; border-radius: 14px; background: #152a42; color: white; text-align: center;
   }
+  #bubble {
+  display: none; position: fixed; z-index: 10;
+  left: 8%; right: 8%; top: 20%;
+  padding: 14px 16px; border-radius: 18px;
+  background: #fffffff2; color: #333;
+  font-size: 20px; text-align: center;
+  font-family: "Hiragino Mincho ProN", serif;
+  pointer-events: none;
+ }
   a-scene { position: fixed; inset: 0; }
 </style>
 </head>
 <body>
+<div id="bubble"></div>
 <div id="hud">
   <div id="title">NYAN MAGIC // SUMMONING SYSTEM</div>
   <div id="status">召喚陣を待機中…</div>
@@ -62,32 +72,72 @@
 
 <script>
   const target = document.getElementById("target");
-  const summon = document.getElementById("summon");
-  const guide = document.getElementById("guide");
-  const status = document.getElementById("status");
-  const error = document.getElementById("error");
-  let finishTimer = null;
+const summon = document.getElementById("summon");
+const guide = document.getElementById("guide");
+const status = document.getElementById("status");
+const error = document.getElementById("error");
+const bubble = document.getElementById("bubble");
 
-  target.addEventListener("targetFound", () => {
-    guide.style.display = "none";
-    status.textContent = "🐾 猫さん召喚中…";
-    setTimeout(() => summon.emit("summon"), 1000); 
-    clearTimeout(finishTimer);
-    finishTimer = setTimeout(() => {
-      status.textContent = "召喚成功！ にゃん！";
-    }, 900);
-  });
+const message = "吾輩は猫である。名前はまだ無い。";
+let finishTimer = null, popTimer = null, talkTimer = null, audioCtx = null;
 
-  target.addEventListener("targetLost", () => {
-    clearTimeout(finishTimer);
-    guide.style.display = "block";
-    status.textContent = "召喚陣を待機中…";
-    summon.setAttribute("scale", "0.001 0.001 0.001");
-  });
+function beep() {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = "square";
+    o.frequency.value = 480 + Math.random() * 120;
+    g.gain.value = 0.04;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime + 0.05);
+  } catch (e) {}
+}
 
-  document.querySelector("a-scene").addEventListener("arError", () => {
-    error.style.display = "block";
-  });
+function speak() {
+  let i = 0;
+  bubble.textContent = "";
+  bubble.style.display = "block";
+  clearInterval(talkTimer);
+  talkTimer = setInterval(() => {
+    i++;
+    bubble.textContent = message.slice(0, i);
+    if (message[i - 1] !== "。") beep();
+    if (i >= message.length) clearInterval(talkTimer);
+  }, 120);
+}
+
+target.addEventListener("targetFound", () => {
+  guide.style.display = "none";
+  status.textContent = "🐾 猫さん召喚中…";
+  summon.emit("summon");
+  clearTimeout(finishTimer);
+  clearTimeout(popTimer);
+  finishTimer = setTimeout(() => {
+    status.textContent = "召喚成功！ にゃん！";
+  }, 900);
+  popTimer = setTimeout(speak, 1000);
+});
+
+target.addEventListener("targetLost", () => {
+  clearTimeout(finishTimer);
+  clearTimeout(popTimer);
+  clearInterval(talkTimer);
+  bubble.style.display = "none";
+  guide.style.display = "block";
+  status.textContent = "召喚陣を待機中…";
+  summon.setAttribute("scale", "0.001 0.001 0.001");
+});
+
+document.querySelector("a-scene").addEventListener("arError", () => {
+  error.style.display = "block";
+});
+
+// 音を鳴らすため、最初の1回タップで音声を有効にする
+document.addEventListener("touchstart", () => {
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume();
+}, { once: true });
 </script>
 </body>
 </html>
