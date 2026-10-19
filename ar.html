@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#061525">
+  <title>猫さん召喚 AR</title>
+
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #061525;
+      color: #d9faff;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+
+    #hud {
+      position: fixed;
+      z-index: 10;
+      top: 5%;
+      left: 5%;
+      right: 5%;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 0 0 12px #00bfff;
+    }
+
+    #title {
+      font-size: 11px;
+      letter-spacing: .22em;
+      color: #7cecff;
+    }
+
+    #status {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    #guide {
+      position: fixed;
+      z-index: 10;
+      bottom: 7%;
+      left: 8%;
+      right: 8%;
+      text-align: center;
+      padding: 14px;
+      border: 1px solid #38cfff88;
+      border-radius: 14px;
+      background: #061525c9;
+      box-shadow: 0 0 20px #008cff33;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    #guide small {
+      display: block;
+      margin-top: 6px;
+      color: #8bbfd5;
+      font-size: 11px;
+    }
+
+    #error {
+      display: none;
+      position: fixed;
+      z-index: 20;
+      top: 35%;
+      left: 8%;
+      right: 8%;
+      padding: 18px;
+      border-radius: 12px;
+      background: #24142b;
+      color: white;
+      text-align: center;
+    }
+
+    a-scene {
+      position: fixed;
+      inset: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="hud">
+    <div id="title">ARCANE SYSTEM // CAT SUMMON</div>
+    <div id="status">召喚陣を待機中…</div>
+  </div>
+
+  <div id="guide">
+    魔法陣のイラストにカメラを向けてね
+    <small>IMAGE TARGET READY</small>
+  </div>
+
+  <div id="error">
+    カメラを起動できなかったみたい。
+    ブラウザのカメラ許可とHTTPS接続を確認してね。
+  </div>
+
+  <a-scene
+    mindar-image="imageTargetSrc: ./magic.mind; autoStart: true;"
+    color-space="sRGB"
+    renderer="colorManagement: true; alpha: true;"
+    vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets>
+      <img id="cat" src="./cat-summon.png">
+    </a-assets>
+
+    <a-camera
+      position="0 0 0"
+      look-controls="enabled: false">
+    </a-camera>
+
+    <!-- 魔法陣と猫さんをまとめて画像ターゲットに追従させる -->
+    <a-entity id="target" mindar-image-target="targetIndex: 0">
+
+      <!-- 外周の魔法リング -->
+      <a-entity id="outer-ring"
+        position="0 0 0.04"
+        rotation="0 0 0"
+        animation__spin="
+          property: rotation;
+          to: 0 0 360;
+          dur: 8000;
+          easing: linear;
+          loop: true;
+          startEvents: summon">
+        <a-torus
+          radius="0.78"
+          radius-tubular="0.008"
+          color="#25cfff"
+          material="shader: standard; emissive: #008cff; emissiveIntensity: 1.8">
+        </a-torus>
+
+        <a-torus
+          radius="0.68"
+          radius-tubular="0.003"
+          color="#b6f8ff"
+          position="0 0 0.005">
+        </a-torus>
+
+        <!-- 外周の光点 -->
+        <a-sphere position="0 0.78 0.01" radius="0.025"
+          color="#8cf7ff"
+          material="emissive: #00aaff; emissiveIntensity: 2">
+        </a-sphere>
+
+        <a-sphere position="0 -0.78 0.01" radius="0.025"
+          color="#8cf7ff"
+          material="emissive: #00aaff; emissiveIntensity: 2">
+        </a-sphere>
+      </a-entity>
+
+      <!-- 内側の逆回転リング -->
+      <a-entity id="inner-ring"
+        position="0 0 0.06"
+        animation__spin="
+          property: rotation;
+          to: 0 0 -360;
+          dur: 4500;
+          easing: linear;
+          loop: true;
+          startEvents: summon">
+        <a-torus
+          radius="0.48"
+          radius-tubular="0.006"
+          color="#8c75ff"
+          material="shader: standard; emissive: #604dff; emissiveIntensity: 2">
+        </a-torus>
+
+        <a-octahedron
+          position="0 0.48 0"
+          radius="0.045"
+          color="#b9faff"
+          material="emissive: #00aaff; emissiveIntensity: 2">
+        </a-octahedron>
+      </a-entity>
+
+      <!-- 召喚時に舞い上がる光の粒 -->
+      <a-entity id="particles">
+        <a-sphere position="-0.3 -0.25 0.12"
+          radius="0.025" color="#8cf7ff"
+          material="emissive: #00aaff; emissiveIntensity: 2"
+          animation__rise="
+            property: position;
+            to: -0.3 0.55 0.18;
+            dur: 1000;
+            easing: easeOutQuad;
+            loop: true;
+            startEvents: summon">
+        </a-sphere>
+
+        <a-sphere position="0.3 -0.2 0.13"
+          radius="0.018" color="#ffffff"
+          material="emissive: #00aaff; emissiveIntensity: 2"
+          animation__rise="
+            property: position;
+            to: 0.35 0.6 0.2;
+            dur: 1250;
+            easing: easeOutQuad;
+            loop: true;
+            startEvents: summon">
+        </a-sphere>
+
+        <a-sphere position="-0.45 0.05 0.14"
+          radius="0.02" color="#a99aff"
+          material="emissive: #604dff; emissiveIntensity: 2"
+          animation__rise="
+            property: position;
+            to: -0.5 0.65 0.18;
+            dur: 1400;
+            easing: easeOutQuad;
+            loop: true;
+            startEvents: summon">
+        </a-sphere>
+
+        <a-sphere position="0.45 0.05 0.14"
+          radius="0.02" color="#8cf7ff"
+          material="emissive: #00aaff; emissiveIntensity: 2"
+          animation__rise="
+            property: position;
+            to: 0.5 0.65 0.18;
+            dur: 1150;
+            easing: easeOutQuad;
+            loop: true;
+            startEvents: summon">
+        </a-sphere>
+      </a-entity>
+
+      <!-- 猫さん登場！ -->
+      <a-entity id="summon"
+        position="0 0 0.25"
+        scale="0.001 0.001 0.001"
+        animation__pop="
+          property: scale;
+          from: 0.001 0.001 0.001;
+          to: 0.68 0.68 0.68;
+          dur: 600;
+          easing: easeOutBack;
+          startEvents: summon">
+
+        <a-image
+          src="#cat"
+          width="1"
+          height="1"
+          position="0 0 0.02">
+        </a-image>
+      </a-entity>
+
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const target = document.getElementById("target");
+    const summon = document.getElementById("summon");
+    const guide = document.getElementById("guide");
+    const status = document.getElementById("status");
+    const error = document.getElementById("error");
+
+    let wasFound = false;
+
+    target.addEventListener("targetFound", () => {
+      // 連続して認識されても、召喚演出を重ねない
+      if (wasFound) return;
+      wasFound = true;
+
+      guide.style.display = "none";
+      status.textContent = "TARGET LOCKED // SUMMONING…";
+
+      // 猫さんをいったん小さく戻して、出現アニメーションを再実行
+      summon.setAttribute("scale", "0.001 0.001 0.001");
+      summon.emit("summon");
+
+      // 魔法陣と粒子のアニメーションも開始
+      document.getElementById("outer-ring").emit("summon");
+      document.getElementById("inner-ring").emit("summon");
+      document.getElementById("particles").querySelectorAll("a-sphere")
+        .forEach(particle => particle.emit("summon"));
+
+      setTimeout(() => {
+        if (wasFound) {
+          status.textContent = "SUMMON COMPLETE // NYA!";
+        }
+      }, 650);
+    });
+
+    target.addEventListener("targetLost", () => {
+      wasFound = false;
+      guide.style.display = "block";
+      status.textContent = "召喚陣を待機中…";
+
+      summon.setAttribute("scale", "0.001 0.001 0.001");
+    });
+
+    // カメラやARエンジンの起動に失敗した場合の案内
+    window.addEventListener("error", (event) => {
+      console.error(event.message);
+    });
+
+    document.querySelector("a-scene").addEventListener("arError", () => {
+      error.style.display = "block";
+    });
+  </script>
+</body>
+</html>
