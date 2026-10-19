@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#061525">
-  <title>猫さん召喚 AR</title>
+  <meta name="theme-color" content="#071629">
+  <title>にゃんこ召喚 AR</title>
 
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
@@ -14,27 +14,27 @@
 
     body {
       margin: 0;
-      background: #061525;
+      overflow: hidden;
+      background: #071629;
       color: #d9faff;
       font-family: sans-serif;
-      overflow: hidden;
     }
 
     #hud {
       position: fixed;
       z-index: 10;
       top: 5%;
-      left: 5%;
-      right: 5%;
+      left: 6%;
+      right: 6%;
       text-align: center;
       pointer-events: none;
-      text-shadow: 0 0 12px #00bfff;
+      text-shadow: 0 0 12px #36cfff;
     }
 
     #title {
       font-size: 11px;
-      letter-spacing: .22em;
-      color: #7cecff;
+      letter-spacing: .2em;
+      color: #9befff;
     }
 
     #status {
@@ -45,23 +45,23 @@
     #guide {
       position: fixed;
       z-index: 10;
-      bottom: 7%;
-      left: 8%;
-      right: 8%;
+      left: 7%;
+      right: 7%;
+      bottom: 6%;
+      padding: 15px 12px;
+      border: 1px solid #65dfff88;
+      border-radius: 18px;
+      background: #071629df;
+      box-shadow: 0 0 20px #23bfff33;
       text-align: center;
-      padding: 14px;
-      border: 1px solid #38cfff88;
-      border-radius: 14px;
-      background: #061525c9;
-      box-shadow: 0 0 20px #008cff33;
       font-size: 14px;
       pointer-events: none;
     }
 
     #guide small {
       display: block;
-      margin-top: 6px;
-      color: #8bbfd5;
+      margin-top: 7px;
+      color: #a5c9e2;
       font-size: 11px;
     }
 
@@ -69,12 +69,12 @@
       display: none;
       position: fixed;
       z-index: 20;
-      top: 35%;
+      top: 40%;
       left: 8%;
       right: 8%;
       padding: 18px;
-      border-radius: 12px;
-      background: #24142b;
+      border-radius: 14px;
+      background: #152a42;
       color: white;
       text-align: center;
     }
@@ -88,18 +88,18 @@
 
 <body>
   <div id="hud">
-    <div id="title">ARCANE SYSTEM // CAT SUMMON</div>
+    <div id="title">NYAN MAGIC // SUMMONING SYSTEM</div>
     <div id="status">召喚陣を待機中…</div>
   </div>
 
   <div id="guide">
-    魔法陣のイラストにカメラを向けてね
-    <small>IMAGE TARGET READY</small>
+    🐾 魔法陣をカメラに映してね 🐾
+    <small>猫さん召喚準備中</small>
   </div>
 
   <div id="error">
     カメラを起動できなかったみたい。
-    ブラウザのカメラ許可とHTTPS接続を確認してね。
+    HTTPS接続とカメラの使用許可を確認してね。
   </div>
 
   <a-scene
@@ -118,131 +118,219 @@
       look-controls="enabled: false">
     </a-camera>
 
-    <!-- 魔法陣と猫さんをまとめて画像ターゲットに追従させる -->
+    <!-- 魔法陣全体がターゲットの上に現れる -->
     <a-entity id="target" mindar-image-target="targetIndex: 0">
 
-      <!-- 外周の魔法リング -->
-      <a-entity id="outer-ring"
-        position="0 0 0.04"
-        rotation="0 0 0"
+      <!-- 外側のキラキラリング -->
+      <a-entity id="outerRing" position="0 0 0.04"
         animation__spin="
           property: rotation;
           to: 0 0 360;
-          dur: 8000;
+          dur: 9000;
           easing: linear;
           loop: true;
           startEvents: summon">
-        <a-torus
-          radius="0.78"
-          radius-tubular="0.008"
-          color="#25cfff"
-          material="shader: standard; emissive: #008cff; emissiveIntensity: 1.8">
+
+        <a-torus radius="0.82" radius-tubular="0.009"
+          color="#65eaff"
+          material="emissive: #18bfff; emissiveIntensity: 1.5">
         </a-torus>
 
-        <a-torus
-          radius="0.68"
-          radius-tubular="0.003"
-          color="#b6f8ff"
-          position="0 0 0.005">
+        <a-torus radius="0.75" radius-tubular="0.003"
+          color="#c3f8ff">
         </a-torus>
 
-        <!-- 外周の光点 -->
-        <a-sphere position="0 0.78 0.01" radius="0.025"
-          color="#8cf7ff"
-          material="emissive: #00aaff; emissiveIntensity: 2">
+        <!-- 外周の小さな光 -->
+        <a-sphere position="0 0.82 0.02" radius="0.025"
+          color="#ffffff"
+          material="emissive: #52dfff; emissiveIntensity: 2">
         </a-sphere>
 
-        <a-sphere position="0 -0.78 0.01" radius="0.025"
-          color="#8cf7ff"
-          material="emissive: #00aaff; emissiveIntensity: 2">
+        <a-sphere position="0 -0.82 0.02" radius="0.025"
+          color="#ffffff"
+          material="emissive: #52dfff; emissiveIntensity: 2">
         </a-sphere>
-      </a-entity>
 
-      <!-- 内側の逆回転リング -->
-      <a-entity id="inner-ring"
-        position="0 0 0.06"
-        animation__spin="
-          property: rotation;
-          to: 0 0 -360;
-          dur: 4500;
-          easing: linear;
-          loop: true;
-          startEvents: summon">
-        <a-torus
-          radius="0.48"
-          radius-tubular="0.006"
-          color="#8c75ff"
-          material="shader: standard; emissive: #604dff; emissiveIntensity: 2">
-        </a-torus>
+        <a-octahedron position="0.82 0 0.02" radius="0.045"
+          color="#b8a5ff"
+          material="emissive: #8065ff; emissiveIntensity: 1.5">
+        </a-octahedron>
 
-        <a-octahedron
-          position="0 0.48 0"
-          radius="0.045"
-          color="#b9faff"
-          material="emissive: #00aaff; emissiveIntensity: 2">
+        <a-octahedron position="-0.82 0 0.02" radius="0.045"
+          color="#b8a5ff"
+          material="emissive: #8065ff; emissiveIntensity: 1.5">
         </a-octahedron>
       </a-entity>
 
-      <!-- 召喚時に舞い上がる光の粒 -->
+      <!-- 内側のリングは反対向きに回転 -->
+      <a-entity id="innerRing" position="0 0 0.06"
+        animation__spin="
+          property: rotation;
+          to: 0 0 -360;
+          dur: 5000;
+          easing: linear;
+          loop: true;
+          startEvents: summon">
+
+        <a-torus radius="0.57" radius-tubular="0.006"
+          color="#c1a5ff"
+          material="emissive: #7655ff; emissiveIntensity: 1.8">
+        </a-torus>
+
+        <a-torus radius="0.48" radius-tubular="0.003"
+          color="#9ff8ff">
+        </a-torus>
+
+        <!-- 4つの星 -->
+        <a-octahedron position="0 0.57 0.01" radius="0.055"
+          color="#d7fbff"
+          material="emissive: #57dfff; emissiveIntensity: 2">
+        </a-octahedron>
+
+        <a-octahedron position="0 -0.57 0.01" radius="0.055"
+          color="#d7fbff"
+          material="emissive: #57dfff; emissiveIntensity: 2">
+        </a-octahedron>
+
+        <a-octahedron position="0.57 0 0.01" radius="0.055"
+          color="#d7fbff"
+          material="emissive: #57dfff; emissiveIntensity: 2">
+        </a-octahedron>
+
+        <a-octahedron position="-0.57 0 0.01" radius="0.055"
+          color="#d7fbff"
+          material="emissive: #57dfff; emissiveIntensity: 2">
+        </a-octahedron>
+      </a-entity>
+
+      <!-- 猫耳をイメージした2つのひし形 -->
+      <a-entity position="0 0 0.09">
+        <a-octahedron position="-0.18 0.31 0"
+          radius="0.085" color="#91eaff"
+          material="emissive: #2fcfff; emissiveIntensity: 1.3">
+        </a-octahedron>
+
+        <a-octahedron position="0.18 0.31 0"
+          radius="0.085" color="#91eaff"
+          material="emissive: #2fcfff; emissiveIntensity: 1.3">
+        </a-octahedron>
+      </a-entity>
+
+      <!-- 肉球マーク -->
+      <a-entity id="paw" position="0 0 0.12">
+        <a-torus radius="0.22" radius-tubular="0.008"
+          color="#a9f7ff"
+          material="emissive: #21cfff; emissiveIntensity: 1.4">
+        </a-torus>
+
+        <!-- 肉球の中央 -->
+        <a-sphere position="0 -0.045 0.015"
+          radius="0.09" scale="1.1 0.85 0.25"
+          color="#9af1ff"
+          material="emissive: #26bfff; emissiveIntensity: 1.5">
+        </a-sphere>
+
+        <!-- 肉球の指 -->
+        <a-sphere position="-0.105 0.065 0.015"
+          radius="0.045" scale="1 1.15 0.3"
+          color="#d6faff"
+          material="emissive: #26bfff; emissiveIntensity: 1.4">
+        </a-sphere>
+
+        <a-sphere position="-0.035 0.12 0.015"
+          radius="0.045" scale="1 1.15 0.3"
+          color="#d6faff"
+          material="emissive: #26bfff; emissiveIntensity: 1.4">
+        </a-sphere>
+
+        <a-sphere position="0.045 0.12 0.015"
+          radius="0.045" scale="1 1.15 0.3"
+          color="#d6faff"
+          material="emissive: #26bfff; emissiveIntensity: 1.4">
+        </a-sphere>
+
+        <a-sphere position="0.115 0.065 0.015"
+          radius="0.045" scale="1 1.15 0.3"
+          color="#d6faff"
+          material="emissive: #26bfff; emissiveIntensity: 1.4">
+        </a-sphere>
+      </a-entity>
+
+      <!-- 魚マーク：小さな魚型の幾何学装飾 -->
+      <a-entity position="0 -0.69 0.09" rotation="0 0 -90">
+        <a-cone position="-0.04 0 0"
+          radius-bottom="0.075" radius-top="0.01"
+          height="0.16"
+          color="#b6a5ff"
+          material="emissive: #8065ff; emissiveIntensity: 1.3">
+        </a-cone>
+
+        <a-sphere position="0.07 0 0"
+          radius="0.055" scale="1.5 0.8 0.3"
+          color="#b6a5ff"
+          material="emissive: #8065ff; emissiveIntensity: 1.3">
+        </a-sphere>
+      </a-entity>
+
+      <!-- 光の粒が舞い上がる -->
       <a-entity id="particles">
-        <a-sphere position="-0.3 -0.25 0.12"
-          radius="0.025" color="#8cf7ff"
-          material="emissive: #00aaff; emissiveIntensity: 2"
+        <a-sphere position="-0.32 -0.25 0.16"
+          radius="0.025" color="#ffffff"
+          material="emissive: #48dfff; emissiveIntensity: 2"
           animation__rise="
             property: position;
-            to: -0.3 0.55 0.18;
-            dur: 1000;
+            to: -0.38 0.48 0.18;
+            dur: 1100;
             easing: easeOutQuad;
             loop: true;
             startEvents: summon">
         </a-sphere>
 
-        <a-sphere position="0.3 -0.2 0.13"
-          radius="0.018" color="#ffffff"
-          material="emissive: #00aaff; emissiveIntensity: 2"
+        <a-sphere position="0.32 -0.20 0.16"
+          radius="0.02" color="#d5c7ff"
+          material="emissive: #8065ff; emissiveIntensity: 2"
           animation__rise="
             property: position;
-            to: 0.35 0.6 0.2;
-            dur: 1250;
+            to: 0.38 0.50 0.18;
+            dur: 1300;
             easing: easeOutQuad;
             loop: true;
             startEvents: summon">
         </a-sphere>
 
-        <a-sphere position="-0.45 0.05 0.14"
-          radius="0.02" color="#a99aff"
-          material="emissive: #604dff; emissiveIntensity: 2"
+        <a-sphere position="-0.48 0.05 0.16"
+          radius="0.018" color="#a6f7ff"
+          material="emissive: #26cfff; emissiveIntensity: 2"
           animation__rise="
             property: position;
-            to: -0.5 0.65 0.18;
-            dur: 1400;
+            to: -0.50 0.60 0.18;
+            dur: 1450;
             easing: easeOutQuad;
             loop: true;
             startEvents: summon">
         </a-sphere>
 
-        <a-sphere position="0.45 0.05 0.14"
-          radius="0.02" color="#8cf7ff"
-          material="emissive: #00aaff; emissiveIntensity: 2"
+        <a-sphere position="0.48 0.05 0.16"
+          radius="0.018" color="#a6f7ff"
+          material="emissive: #26cfff; emissiveIntensity: 2"
           animation__rise="
             property: position;
-            to: 0.5 0.65 0.18;
-            dur: 1150;
+            to: 0.50 0.60 0.18;
+            dur: 1200;
             easing: easeOutQuad;
             loop: true;
             startEvents: summon">
         </a-sphere>
       </a-entity>
 
-      <!-- 猫さん登場！ -->
+      <!-- 猫さん、ポンッ！ -->
       <a-entity id="summon"
-        position="0 0 0.25"
+        position="0 0 0.35"
         scale="0.001 0.001 0.001"
         animation__pop="
           property: scale;
-          from: 0.001 0.001 0.001;
           to: 0.68 0.68 0.68;
-          dur: 600;
+          dur: 650;
           easing: easeOutBack;
           startEvents: summon">
 
@@ -250,7 +338,7 @@
           src="#cat"
           width="1"
           height="1"
-          position="0 0 0.02">
+          position="0 0 0.03">
         </a-image>
       </a-entity>
 
@@ -264,48 +352,58 @@
     const status = document.getElementById("status");
     const error = document.getElementById("error");
 
-    let wasFound = false;
+    const animatedParts = [
+      "outerRing",
+      "innerRing"
+    ].map(id => document.getElementById(id));
+
+    const particles = document
+      .getElementById("particles")
+      .querySelectorAll("a-sphere");
+
+    let visible = false;
+    let finishTimer = null;
 
     target.addEventListener("targetFound", () => {
-      // 連続して認識されても、召喚演出を重ねない
-      if (wasFound) return;
-      wasFound = true;
+      if (visible) return;
+      visible = true;
 
+      clearTimeout(finishTimer);
       guide.style.display = "none";
-      status.textContent = "TARGET LOCKED // SUMMONING…";
+      status.textContent = "🐾 猫さん召喚中…";
 
-      // 猫さんをいったん小さく戻して、出現アニメーションを再実行
+      // 猫さんを小さく戻してから、ポンッと登場
       summon.setAttribute("scale", "0.001 0.001 0.001");
       summon.emit("summon");
 
-      // 魔法陣と粒子のアニメーションも開始
-      document.getElementById("outer-ring").emit("summon");
-      document.getElementById("inner-ring").emit("summon");
-      document.getElementById("particles").querySelectorAll("a-sphere")
-        .forEach(particle => particle.emit("summon"));
+      // 魔法陣の回転と光の粒を開始
+      animatedParts.forEach(part => part.emit("summon"));
+      particles.forEach(particle => particle.emit("summon"));
 
-      setTimeout(() => {
-        if (wasFound) {
-          status.textContent = "SUMMON COMPLETE // NYA!";
+      finishTimer = setTimeout(() => {
+        if (visible) {
+          status.textContent = "召喚成功！ にゃん！";
         }
-      }, 650);
+      }, 700);
     });
 
     target.addEventListener("targetLost", () => {
-      wasFound = false;
+      visible = false;
+      clearTimeout(finishTimer);
+
       guide.style.display = "block";
       status.textContent = "召喚陣を待機中…";
-
       summon.setAttribute("scale", "0.001 0.001 0.001");
     });
 
-    // カメラやARエンジンの起動に失敗した場合の案内
-    window.addEventListener("error", (event) => {
-      console.error(event.message);
+    const scene = document.querySelector("a-scene");
+
+    scene.addEventListener("arError", () => {
+      error.style.display = "block";
     });
 
-    document.querySelector("a-scene").addEventListener("arError", () => {
-      error.style.display = "block";
+    scene.addEventListener("loaded", () => {
+      console.log("猫さん召喚システム起動！");
     });
   </script>
 </body>
