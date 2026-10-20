@@ -42,6 +42,68 @@
   padding: 16px 20px;
   border-radius: 14px;
 
+   #celebration {
+  display: none;
+  position: fixed;
+  z-index: 11;
+  top: 12%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  pointer-events: none;
+}
+
+#celebration .birthday-title {
+  color: #d9faff;
+  font-family: "Noto Sans JP", sans-serif;
+  font-size: clamp(20px, 5vw, 30px);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-shadow:
+    0 0 8px #36cfff,
+    0 0 22px #36cfff;
+  animation: birthdayReveal 1s ease-out both;
+}
+
+#celebration .birthday-sub {
+  margin-top: 8px;
+  color: #65dfff;
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  animation: birthdayReveal 1s ease-out 0.2s both;
+}
+
+#celebration .birthday-sparkles {
+  margin-top: 12px;
+  color: #a9f3ff;
+  font-size: 22px;
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 12px #36cfff;
+  animation: sparklePulse 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes birthdayReveal {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes sparklePulse {
+  from {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
   /* 透けるホログラム */
   background: rgba(10, 35, 60, 0.48);
   backdrop-filter: blur(5px);
@@ -82,6 +144,11 @@
 </head>
 <body>
 <div id="bubble"></div>
+ <div id="celebration">
+  <div class="birthday-title">HAPPY BIRTHDAY</div>
+  <div class="birthday-sub">SPECIAL EVENT COMPLETE</div>
+  <div class="birthday-sparkles">✦　✧　✦　✧　✦</div>
+</div>
 <div id="hud">
   <div id="title">NYAN MAGIC // SUMMONING SYSTEM</div>
   <div id="status">召喚陣を待機中…</div>
@@ -121,6 +188,7 @@
   const status = document.getElementById("status");
   const error = document.getElementById("error");
   const bubble = document.getElementById("bubble");
+ const celebration = document.getElementById("celebration");
 
   // 世界観をごちゃ混ぜにせず、お誕生日お祝いメッセージに統一
   const steps = [
@@ -161,10 +229,19 @@
     }
 
     if (!s.text) {
-      bubble.style.display = "none";
-      typing = false;
-      return;
-    }
+  bubble.style.display = "none";
+  typing = false;
+
+  if (s.img === "#cake") {
+    celebration.style.display = "block";
+  } else {
+    celebration.style.display = "none";
+  }
+
+  return;
+}
+
+celebration.style.display = "none";
 
     let i = 0;
     typing = true;
@@ -183,6 +260,7 @@
 
   target.addEventListener("targetFound", () => {
     guide.style.display = "none";
+   celebration.style.display = "none";
     status.textContent = "🐾 猫さん召喚中…";
     summon.emit("summon");
     clearTimeout(finishTimer);
@@ -201,6 +279,7 @@
     clearInterval(talkTimer);
     typing = false;
     bubble.style.display = "none";
+   celebration.style.display = "none";
     guide.style.display = "block";
     status.textContent = "召喚陣を待機中…";
     summon.setAttribute("scale", "0.001 0.001 0.001");
