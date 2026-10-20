@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#071629">
+<title>NYAN MAGIC // BIRTHDAY SUMMON</title>
+<script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<!-- Google Fontsでポップ＆近未来感のあるフォント（M PLUS Rounded 1c）をインポート -->
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { 
+    margin: 0; overflow: hidden; background: #071629; 
+    color: #d9faff; font-family: 'M PLUS Rounded 1c', sans-serif; 
+  }
+  #hud {
+    position: fixed; z-index: 10; top: 5%; left: 6%; right: 6%;
+    text-align: center; pointer-events: none; text-shadow: 0 0 12px #36cfff;
+  }
+  #title { font-size: 11px; letter-spacing: .2em; color: #9befff; }
+  #status { margin-top: 6px; font-size: 13px; font-weight: bold; }
+  #guide {
+    position: fixed; z-index: 10; left: 7%; right: 7%; bottom: 6%;
+    padding: 15px 12px; border: 1px solid #65dfff88; border-radius: 18px;
+    background: #071629df; box-shadow: 0 0 20px #23bfff33;
+    text-align: center; font-size: 14px; pointer-events: none;
+  }
+  #guide small { display: block; margin-top: 5px; color: #a5c9e2; font-size: 11px; }
+  #error {
+    display: none; position: fixed; z-index: 20; top: 40%; left: 8%; right: 8%;
+    padding: 18px; border-radius: 14px; background: #152a42; color: white; text-align: center;
+  }
+  #bubble {
+    display: none; position: fixed; z-index: 10;
+    left: 8%; right: 8%; top: 18%;
+    padding: 16px 20px; border-radius: 20px;
+    background: rgba(10, 28, 51, 0.92); 
+    border: 2px solid #36cfff;
+    color: #ffffff;
+    font-size: 18px; font-weight: bold; text-align: center;
+    box-shadow: 0 0 25px rgba(54, 207, 255, 0.4);
+    pointer-events: none;
+    letter-spacing: 0.05em;
+  }
+  #bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 10px 10px 0;
+    border-style: solid;
+    border-color: #36cfff transparent;
+    display: block;
+    width: 0;
+  }
+  a-scene { position: fixed; inset: 0; }
+</style>
+</head>
+<body>
+<div id="bubble"></div>
+<div id="hud">
+  <div id="title">NYAN MAGIC // BIRTHDAY SUMMON</div>
+  <div id="status">召喚陣を待機中…</div>
+</div>
+
+<div id="guide">
+  🐾 魔法陣をカメラに映してね 🐾
+  <small>スペシャルニャンコ召喚準備中</small>
+</div>
+
+<div id="error">
+  カメラを起動できなかったみたい。<br>
+  HTTPS接続とカメラの使用許可を確認してね。
+</div>
+
+<a-scene mindar-image="imageTargetSrc: ./magic.mind;" vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+  <a-assets>
+    <img id="cat" src="./cat-summon.png">
+    <img id="catSing" src="./cat-sing.png">
+    <img id="cake" src="./cake.png">
+  </a-assets>
+  <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+  <a-entity id="target" mindar-image-target="targetIndex: 0">
+    <a-entity id="summon" scale="0.001 0.001 0.001"
+      animation="property: scale; to: 1 1 1; dur: 900; easing: easeOutElastic; startEvents: summon">
+      <a-image id="catImage" src="#cat" width="1" height="1" position="0 0 0.5" rotation="90 0 0"></a-image>
+    </a-entity>
+  </a-entity>
+</a-scene>
+
+<script>
+  const target = document.getElementById("target");
+  const summon = document.getElementById("summon");
+  const catImage = document.getElementById("catImage");
+  const guide = document.getElementById("guide");
+  const status = document.getElementById("status");
+  const error = document.getElementById("error");
+  const bubble = document.getElementById("bubble");
+
+  // 世界観をごちゃ混ぜにせず、お誕生日お祝いメッセージに統一
+  const steps = [
+    { text: "にゃっ！魔法陣起動成功…！", img: "#cat" },
+    { text: "今日は記念すべき特別な日だにゃん♪", img: "#cat" },
+    { text: "お誕生日、本当におめでとう〜！🎉", img: "#catSing" },
+    { text: "特製ケーキを召し上がれ✨", img: "#cake" }
+  ];
+  let index = 0;
+  let typing = false;
+  let finishTimer = null, popTimer = null, talkTimer = null, audioCtx = null;
+
+  function beep() {
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = "sine";
+      o.frequency.value = 520 + Math.random() * 100;
+      g.gain.value = 0.03;
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + 0.04);
+    } catch (e) {}
+  }
+
+  function pop() {
+    summon.setAttribute("scale", "0.001 0.001 0.001");
+    setTimeout(() => summon.emit("summon"), 50);
+  }
+
+  function showStep() {
+    const s = steps[index];
+    clearInterval(talkTimer);
+
+    if (catImage.getAttribute("src") !== s.img) {
+      catImage.setAttribute("src", s.img);
+      pop();
+    }
+
+    if (!s.text) {
+      bubble.style.display = "none";
+      typing = false;
+      return;
+    }
+
+    let i = 0;
+    typing = true;
+    bubble.textContent = "";
+    bubble.style.display = "block";
+    talkTimer = setInterval(() => {
+      i++;
+      bubble.textContent = s.text.slice(0, i);
+      if (!"。〜♪!！ ".includes(s.text[i - 1])) beep();
+      if (i >= s.text.length) {
+        clearInterval(talkTimer);
+        typing = false;
+      }
+    }, 90);
+  }
+
+  target.addEventListener("targetFound", () => {
+    guide.style.display = "none";
+    status.textContent = "🐾 猫さん召喚中…！";
+    summon.emit("summon");
+    clearTimeout(finishTimer);
+    clearTimeout(popTimer);
+    finishTimer = setTimeout(() => {
+      status.textContent = "召喚成功！ タップしてね 👉";
+    }, 900);
+    index = 0;
+    catImage.setAttribute("src", steps[0].img);
+    popTimer = setTimeout(showStep, 1000);
+  });
+
+  target.addEventListener("targetLost", () => {
+    clearTimeout(finishTimer);
+    clearTimeout(popTimer);
+    clearInterval(talkTimer);
+    typing = false;
+    bubble.style.display = "none";
+    guide.style.display = "block";
+    status.textContent = "召喚陣を待機中…";
+    summon.setAttribute("scale", "0.001 0.001 0.001");
+    catImage.setAttribute("src", steps[0].img);
+  });
+
+  // 画面タップでセリフを進める（またはタイピングをスキップ）
+  document.addEventListener("click", () => {
+    if (typing) {
+      clearInterval(talkTimer);
+      bubble.textContent = steps[index].text;
+      typing = false;
+      return;
+    }
+    if (bubble.style.display === "block") {
+      index++;
+      if (index < steps.length) {
+        showStep();
+      } else {
+        // 最後まで行ったら最初に戻す、あるいはループさせる
+        index = 0;
+        showStep();
+      }
+    }
+  });
+
+  document.querySelector("a-scene").addEventListener("arError", () => {
+    error.style.display = "block";
+  });
+
+  document.addEventListener("touchstart", () => {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  }, { once: true });
+</script>
+</body>
+</html>
