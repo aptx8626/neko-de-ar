@@ -69,27 +69,27 @@
   content: "";
   position: absolute;
   left: 50%;
-  bottom: -7px;
-  width: 12px;
-  height: 12px;
-  transform: translateX(-50%) rotate(45deg);
+  bottom: -9px;
+  transform: translateX(-50%);
 
-  background: rgba(10, 35, 60, 0.48);
-  border-right: 1px solid rgba(101, 223, 255, 0.75);
-  border-bottom: 1px solid rgba(101, 223, 255, 0.75);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 9px 9px 0;
+  border-color: rgba(101, 223, 255, 0.75) transparent transparent;
 }  a-scene { position: fixed; inset: 0; }
 </style>
 </head>
 <body>
 <div id="bubble"></div>
 <div id="hud">
-  <div id="title">NYAN MAGIC // BIRTHDAY SUMMON</div>
+  <div id="title">NYAN MAGIC // SUMMONING SYSTEM</div>
   <div id="status">召喚陣を待機中…</div>
 </div>
 
 <div id="guide">
   🐾 魔法陣をカメラに映してね 🐾
-  <small>スペシャルニャンコ召喚準備中</small>
+  <small>猫さん召喚準備中</small>
 </div>
 
 <div id="error">
@@ -183,12 +183,12 @@
 
   target.addEventListener("targetFound", () => {
     guide.style.display = "none";
-    status.textContent = "🐾 猫さん召喚中…！";
+    status.textContent = "🐾 猫さん召喚中…";
     summon.emit("summon");
     clearTimeout(finishTimer);
     clearTimeout(popTimer);
     finishTimer = setTimeout(() => {
-      status.textContent = "召喚成功！ タップしてね 👉";
+      status.textContent = "召喚成功！ にゃん！";
     }, 900);
     index = 0;
     catImage.setAttribute("src", steps[0].img);
