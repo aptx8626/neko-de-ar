@@ -72,13 +72,19 @@
 
 <script>
   const target = document.getElementById("target");
-const summon = document.getElementById("summon");
-const guide = document.getElementById("guide");
-const status = document.getElementById("status");
-const error = document.getElementById("error");
-const bubble = document.getElementById("bubble");
+  const summon = document.getElementById("summon");
+  const guide = document.getElementById("guide");
+  const status = document.getElementById("status");
+  const error = document.getElementById("error");
+  const bubble = document.getElementById("bubble");
 
-const message = "吾輩は猫である。名前はまだ無い。";
+  const messages = [
+  "にゃん",
+  "吾輩は猫である。名前はまだ無い。",
+  "Happy birthday to you〜♪"
+];
+let index = 0;
+let typing = false;
 let finishTimer = null, popTimer = null, talkTimer = null, audioCtx = null;
 
 function beep() {
@@ -95,15 +101,20 @@ function beep() {
 }
 
 function speak() {
+  const text = messages[index];
   let i = 0;
+  typing = true;
   bubble.textContent = "";
   bubble.style.display = "block";
   clearInterval(talkTimer);
   talkTimer = setInterval(() => {
     i++;
-    bubble.textContent = message.slice(0, i);
-    if (message[i - 1] !== "。") beep();
-    if (i >= message.length) clearInterval(talkTimer);
+    bubble.textContent = text.slice(0, i);
+    if (!"。〜♪ ".includes(text[i - 1])) beep();
+    if (i >= text.length) {
+      clearInterval(talkTimer);
+      typing = false;
+    }
   }, 120);
 }
 
@@ -116,6 +127,7 @@ target.addEventListener("targetFound", () => {
   finishTimer = setTimeout(() => {
     status.textContent = "召喚成功！ にゃん！";
   }, 900);
+  index = 0;
   popTimer = setTimeout(speak, 1000);
 });
 
@@ -123,10 +135,27 @@ target.addEventListener("targetLost", () => {
   clearTimeout(finishTimer);
   clearTimeout(popTimer);
   clearInterval(talkTimer);
+  typing = false;
   bubble.style.display = "none";
   guide.style.display = "block";
   status.textContent = "召喚陣を待機中…";
   summon.setAttribute("scale", "0.001 0.001 0.001");
+});
+
+// タップで次のセリフへ
+document.addEventListener("click", () => {
+  if (bubble.style.display !== "block") return;
+  if (typing) {
+    // しゃべり途中ならいったん全部表示
+    clearInterval(talkTimer);
+    bubble.textContent = messages[index];
+    typing = false;
+    return;
+  }
+  if (index < messages.length - 1) {
+    index++;
+    speak();
+  }
 });
 
 document.querySelector("a-scene").addEventListener("arError", () => {
