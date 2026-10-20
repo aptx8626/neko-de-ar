@@ -7,6 +7,8 @@
 <title>NYAN MAGIC // BIRTHDAY SUMMON</title>
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+<!-- head内にA-Frameのパーティクル用スクリプトを追加 -->
+<script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
 <!-- Google Fontsでフォントインポート -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -232,6 +234,8 @@ a-scene {
       <a-image id="catImage" src="#cat" width="1" height="1" position="0 0 0.5" rotation="90 0 0"></a-image>
     </a-entity>
   </a-entity>
+  <!-- a-sceneの中にパーティクルを配置 -->
+<a-entity particle-system="preset: snow; color: #ffd700, #ff69b4; particleCount: 300; maxAge: 2; size: 1.5;"></a-entity>
 </a-scene>
 
 <script>
