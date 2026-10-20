@@ -7,8 +7,6 @@
 <title>NYAN MAGIC // BIRTHDAY SUMMON</title>
 <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
-<!-- head内にA-Frameのパーティクル用スクリプトを追加 -->
-<script src="https://unpkg.com/aframe-particle-system-component@1.0.x/dist/aframe-particle-system-component.min.js"></script>
 <!-- Google Fontsでフォントインポート -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -235,19 +233,6 @@ a-scene {
       <!-- 猫さん画像 -->
       <a-image id="catImage" src="#cat" width="1" height="1" position="0 0 0.5" rotation="90 0 0"></a-image>
       
-      <!-- 👇 パーティクルを「ターゲット（魔法陣）の中」に移動し、位置や数・サイズを調整 -->
-     <!--
-      <a-entity
-  position="0 0 0.3"
-  particle-system="
-    particleCount: 10;
-    color: #ffd700;
-    size: 0.01;
-    maxAge: 0.5;
-    positionSpread: 0.05 0.05 0.05;
-  ">
-</a-entity>
-      -->
     </a-entity>
   </a-entity>
 </a-scene>
@@ -262,7 +247,6 @@ a-scene {
   const bubble = document.getElementById("bubble");
  const celebration = document.getElementById("celebration");
 
-  // 世界観をごちゃ混ぜにせず、お誕生日お祝いメッセージに統一
   const steps = [
     { text: "にゃん", img: "#cat" },
     { text: "吾輩は猫でAR。名前はまだ無い。", img: "#cat" },
@@ -286,6 +270,28 @@ a-scene {
     } catch (e) {}
   }
 
+  // ケーキ登場時のキラキラ
+function sparkle() {
+  for (let n = 0; n < 14; n++) {
+    const p = document.createElement("a-sphere");
+    const x = (Math.random() - 0.5) * 0.9;
+    const y = (Math.random() - 0.5) * 0.3;
+    const z = 0.3 + Math.random() * 0.3;
+    const dur = 1200 + Math.random() * 800;
+
+    p.setAttribute("radius", 0.02 + Math.random() * 0.02);
+    p.setAttribute("material", "shader: flat; color: #ffe27a; transparent: true; opacity: 1");
+    p.setAttribute("position", `${x} ${y} ${z}`);
+    p.setAttribute("animation__rise",
+      `property: position; to: ${x} ${y} ${z + 0.7}; dur: ${dur}; easing: easeOutQuad`);
+    p.setAttribute("animation__fade",
+      `property: material.opacity; from: 1; to: 0; dur: ${dur}; easing: linear`);
+
+    summon.appendChild(p);
+    setTimeout(() => p.remove(), dur + 200);
+  }
+}
+
   function pop() {
     summon.setAttribute("scale", "0.001 0.001 0.001");
     setTimeout(() => summon.emit("summon"), 50);
@@ -305,10 +311,11 @@ a-scene {
   typing = false;
 
   if (s.img === "#cake") {
-    celebration.style.display = "block";
-  } else {
-    celebration.style.display = "none";
-  }
+  celebration.style.display = "block";
+  setTimeout(sparkle, 300);   // ケーキがポンッと出てからキラキラ
+} else {
+  celebration.style.display = "none";
+}
 
   return;
 }
